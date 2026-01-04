@@ -12,7 +12,7 @@ class Bank:
             return False
     
     def transfer(self,acc1, acc2, amount):
-        if(amount<= acc1.get_balance()):
+        if((acc1.acc_type=="CurrentAccount" and amount<= acc1.get_balance()+ acc1.overdraft_limit) or acc1.acc_type=="SavingsAccount" and amount<= acc1.get_balance()):
             acc1.withdraw(amount)
             acc2.deposit(amount)
             print("succesfully transfered money")
@@ -33,23 +33,23 @@ class Account:
     def __init__(self,acc_number,holder_name,balance):
         self.acc_number = acc_number
         self.name = holder_name
-        self.__balance = balance
-        self.transactions = [f"deposited Rs {self.__balance} "]
+        self._balance = balance
+        self.transactions = [f"deposited Rs {self._balance} "]
 
     def deposit(self,amount):
         if(amount<0):
             print("you cannot deposit negative amount")
         else:
-            self.__balance+= amount
+            self._balance+= amount
             self.transactions.append((f"deposited Rs {amount}"))
     def withdraw(self, amount):
-        if(amount> self.__balance):
+        if(amount> self._balance):
             print("Transaction failed!! insufficient balance")
         else:
-            self.__balance-=amount
+            self._balance-=amount
             self.transactions.append(f"Rs {amount} withdrawn")
     def get_balance(self):
-        return self.__balance
+        return self._balance
     
 class SavingsAccount(Account):
     interest_rate = 0.05 #5% interest rate
@@ -68,7 +68,7 @@ class CurrentAccount(Account):
         if(abs(self.get_balance()-amount)>self.overdraft_limit):
             print("Overdraft limit crossed! couldn't make transaction")
         else:
-            self._Account__balance-= amount
+            self._balance-= amount
             self.transactions.append(f"Rs {amount} withdrawn")
 
     
@@ -92,8 +92,8 @@ print(mybank.accounts)
 mybank.show_account_summary(account1)
 print(mybank.find_account("1234"))
 print(mybank.find_account("1111"))
-
-mybank.transfer(account1,account3, 6000)
+print(account1.get_balance(), account3.get_balance()) # checking balance of account1 and account2 before making transaction
+mybank.transfer(account3,account1, 6000)
 mybank.transfer(account1,account3, 1000)
 print(account1.get_balance())
 account1.apply_interest()
