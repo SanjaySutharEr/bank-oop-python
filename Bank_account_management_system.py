@@ -3,7 +3,7 @@ class Bank:
         self.accounts = {}
 
     def create_account(self, account):
-        self.accounts.update({account.acc_number: account.name})
+        self.accounts.update({account.acc_number: account})
 
     def find_account(self,acc_num):
         if(acc_num in self.accounts):
