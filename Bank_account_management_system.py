@@ -12,26 +12,31 @@ class Bank:
             return False
     
     def transfer(self,acc1, acc2, amount):
-        allowed = False
-        if(acc1.acc_number in self.accounts and acc2.acc_number in self.accounts):
-            if(acc1.acc_type =="SavingsAccount"):
-                allowed = amount<= acc1.get_balance()
-            elif(acc1.acc_type== "CurrentAccount"):
-                allowed = amount<=acc1.get_balance()+ acc1.overdraft_limit
-            if allowed:
-                acc1.withdraw(amount)
-                acc2.deposit(amount)
-                print("succesfully transfered money")
-                print(f"Available balance in account {acc1.acc_number}: {acc1.get_balance()}")
-                print(f"Available balance in account {acc2.acc_number}: {acc2.get_balance()}")
-            else:
-                print("Insufficient balance! Can't trasfer money")
-        else:
+        if(amount<0):
+            print("Invalid transfer amount")
+            return
+        if (acc1.acc_number not in self.accounts or acc2.acc_number not in self.accounts):
             print("Invalid account/accounts")
+            return
+
+        allowed = False
+        if(acc1.acc_type =="SavingsAccount"):
+            allowed = amount<= acc1.get_balance()
+        elif(acc1.acc_type== "CurrentAccount"):
+            allowed = amount<=acc1.get_balance()+ acc1.overdraft_limit
+        if not allowed:
+            print("Insufficient balance! Can't transfer money")
+            return
+        acc1.withdraw(amount)
+        acc2.deposit(amount)
+        print("Succesfully transfered money")
+        acc1.transactions.append(f"Transferred Rs {amount} to {acc2.acc_number}")
+        acc2.transactions.append(f"Received Rs {amount} from {acc1.acc_number}")
+           
 
     
     def show_account_summary(self, acc):
-        print(f"Account number: {acc.acc_number}, Account holder: {acc.name}, Account type: {acc.acc_type}, Current balance: {acc.get_balance()}")
+        print(f"Account number: {acc.acc_number}, Account holder: {acc.name}, Account type: {acc.acc_type}, Current balance: {acc.get_balance()} Transaction History: {acc.transactions}")
 
 
 
@@ -64,7 +69,8 @@ class SavingsAccount(Account):
 
     def apply_interest(self):
         interest = self.get_balance()*self.interest_rate
-        self.deposit(interest)
+        self._balance+= interest
+        self.transactions.append(f"Rs {interest} interest added")
         print(f"Rs {interest} interest added")
 
 class CurrentAccount(Account):
@@ -108,6 +114,7 @@ account1.apply_interest()
 print(account1.get_balance())
 account3.withdraw(50000)
 print(account3.get_balance())
+mybank.show_account_summary(account1)
 
 
     
