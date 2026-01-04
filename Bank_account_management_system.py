@@ -45,17 +45,16 @@ class Account:
         self.transactions = [f"deposited Rs {self._balance} "]
 
     def deposit(self,amount):
-        if(amount<0):
-            print("you cannot deposit negative amount")
-        else:
+        if(amount>0):
             self._balance+= amount
             self.transactions.append((f"deposited Rs {amount}"))
     def withdraw(self, amount):
-        if(amount> self._balance):
-            print("Transaction failed!! insufficient balance")
-        else:
-            self._balance-=amount
-            self.transactions.append(f"Rs {amount} withdrawn")
+        if(amount>0):
+            if(amount> self._balance):
+                print("Transaction failed!! insufficient balance")
+            else:
+                self._balance-=amount
+                self.transactions.append(f"Rs {amount} withdrawn")
     def get_balance(self):
         return self._balance
     
@@ -73,11 +72,12 @@ class CurrentAccount(Account):
     acc_type = "CurrentAccount"
 
     def withdraw(self,amount):
-        if(abs(self.get_balance()-amount)>self.overdraft_limit):
-            print("Overdraft limit crossed! couldn't make transaction")
-        else:
-            self._balance-= amount
-            self.transactions.append(f"Rs {amount} withdrawn")
+        if(amount>0):
+            if(abs(self.get_balance()-amount)>self.overdraft_limit):
+                print("Overdraft limit crossed! couldn't make transaction")
+            else:
+                self._balance-= amount
+                self.transactions.append(f"Rs {amount} withdrawn")
 
     
 mybank = Bank()
@@ -89,7 +89,7 @@ account3 = CurrentAccount("5647", "sara ali", 2000)
 mybank.create_account(account3)
 
 account1.deposit(2000)
-account1.deposit(2000)
+account1.deposit(-2000)
 account2.deposit(5000)
 account1.deposit(2000)
 account2.withdraw(2000)
