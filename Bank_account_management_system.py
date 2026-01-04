@@ -12,14 +12,22 @@ class Bank:
             return False
     
     def transfer(self,acc1, acc2, amount):
-        if((acc1.acc_type=="CurrentAccount" and amount<= acc1.get_balance()+ acc1.overdraft_limit) or acc1.acc_type=="SavingsAccount" and amount<= acc1.get_balance()):
-            acc1.withdraw(amount)
-            acc2.deposit(amount)
-            print("succesfully transfered money")
-            print(f"Available balance in account {acc1.acc_number}: {acc1.get_balance()}")
-            print(f"Available balance in account {acc2.acc_number}: {acc2.get_balance()}")
+        allowed = False
+        if(acc1.acc_number in self.accounts and acc2.acc_number in self.accounts):
+            if(acc1.acc_type =="SavingsAccount"):
+                allowed = amount<= acc1.get_balance()
+            elif(acc1.acc_type== "CurrentAccount"):
+                allowed = amount<=acc1.get_balance()+ acc1.overdraft_limit
+            if allowed:
+                acc1.withdraw(amount)
+                acc2.deposit(amount)
+                print("succesfully transfered money")
+                print(f"Available balance in account {acc1.acc_number}: {acc1.get_balance()}")
+                print(f"Available balance in account {acc2.acc_number}: {acc2.get_balance()}")
+            else:
+                print("Insufficient balance! Can't trasfer money")
         else:
-            print("Insufficient balance! Can't trasfer money")
+            print("Invalid account/accounts")
 
     
     def show_account_summary(self, acc):
