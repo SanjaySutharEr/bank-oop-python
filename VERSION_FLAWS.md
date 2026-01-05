@@ -155,28 +155,4 @@ solved in **V5**.
 - No print statements in core logic
 - Descriptor-based balance enforcement retained
 
----
 
-## Evolution Summary
-
-| Version | Focus | Maturity |
-|------|------|---------|
-| V1 | Basic OOP | Beginner |
-| V2 | Validation & structure | Intermediate |
-| V3 | Invariants & descriptors | Advanced |
-| V4 | Domain modeling | Near-production |
-
----
-
-## Requirements for V5
-
-- Account-number-based APIs only
-- Atomic transfers (commit / rollback)
-- Immutable transaction records
-- Service layer separation
-- Optional persistence (JSON / DB)
-
----
-
-**V4 represents a real domain model.  
-V5 should behave like a banking core, not a script.**
