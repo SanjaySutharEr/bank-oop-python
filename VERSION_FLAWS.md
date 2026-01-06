@@ -155,4 +155,161 @@ solved in **V5**.
 - No print statements in core logic
 - Descriptor-based balance enforcement retained
 
+# Improvements in V5 Compared to V4
+
+This document summarizes all concrete improvements introduced in **V5** of the Bank Management System compared to **V4**, based on identified flaws, design discussions, and fixes applied during iteration.
+
+---
+
+## 1. Transaction System Improvements
+
+### 1.1 Enforced Transaction Immutability
+- V4 allowed potential mutation of `Transaction` attributes after creation.
+- V5 overrides `__setattr__` to prevent modification of already-set attributes.
+- Uses `super().__setattr__` correctly to bypass custom logic during initialization.
+
+**Impact:**  
+Transactions are now true immutable event records.
+
+---
+
+### 1.2 Stronger Transaction Validation
+- V4 had incomplete or loose validation of transaction metadata.
+- V5 enforces:
+  - Correct `TransactionType` via Enum
+  - Positive numeric amounts
+  - Mandatory `source_account` for `TRANSFER_IN`
+  - Mandatory `target_account` for `TRANSFER_OUT`
+  - No source/target for DEPOSIT, WITHDRAW, INTEREST
+
+**Impact:**  
+Invalid transaction states are now impossible to construct.
+
+---
+
+## 2. Balance Handling & Invariant Enforcement
+
+### 2.1 Descriptor-Based Balance Enforcement
+- V4 balance rules were partially enforced via procedural logic.
+- V5 uses a `Balance` descriptor to:
+  - Prevent negative opening balances
+  - Enforce numeric-only balances
+  - Block deletion of balance
+  - Delegate validation to account-specific rules
+
+**Impact:**  
+Balance invariants are centralized, reusable, and impossible to bypass.
+
+---
+
+### 2.2 Polymorphic Balance Validation
+- V4 had weaker or duplicated balance rules.
+- V5 enforces balance constraints via `_validate_balance()`:
+  - `SavingsAccount`: balance ≥ 0
+  - `CurrentAccount`: balance ≥ -overdraft_limit
+
+**Impact:**  
+Account-specific financial rules are cleanly extensible without conditionals.
+
+---
+
+## 3. Transfer Logic Improvements
+
+### 3.1 Clear Separation of TRANSFER_IN vs TRANSFER_OUT
+- V4 mixed transfer logic and semantics.
+- V5 explicitly records:
+  - `TRANSFER_OUT` for sender
+  - `TRANSFER_IN` for receiver
+
+**Impact:**  
+Transaction history is now semantically correct and auditable.
+
+---
+
+### 3.2 Safe Failure Ordering Under Stated Assumptions
+- V4 had ambiguity around partial transfer failure.
+- V5 ensures:
+  - Debit (`transfer_to`) happens first
+  - Credit (`transfer_from`) only executes if debit succeeds
+- Assumes deposits cannot fail (explicit design decision).
+
+**Impact:**  
+No partial state corruption under current model assumptions.
+
+---
+
+## 4. Error Handling & Messaging
+
+### 4.1 Account-Specific Error Messages
+- V4 hardcoded or leaked generic errors.
+- V5 allows account-level customization:
+  - `withdraw_error_msg` overridden in `CurrentAccount`
+
+**Impact:**  
+Cleaner API surface and clearer user-facing errors.
+
+---
+
+## 5. Account & Bank Design Improvements
+
+### 5.1 Clear Responsibility Boundaries
+- V4 had logic bleed between Bank and Account responsibilities.
+- V5 clarifies:
+  - `Bank` → orchestration & lookup
+  - `Account` → state changes & rules
+  - `Transaction` → immutable event record
+
+**Impact:**  
+System follows proper object-oriented responsibility segregation.
+
+---
+
+### 5.2 Safer Account Creation
+- V4 allowed looser initialization paths.
+- V5 enforces:
+  - Unique account numbers
+  - Valid opening balances
+  - Descriptor-based initialization safety
+
+**Impact:**  
+Accounts cannot enter invalid initial states.
+
+---
+
+## 6. Transaction History Improvements
+
+### 6.1 Correct Last-N Transaction Retrieval
+- V4 had ordering / return bugs in transaction history.
+- V5 correctly:
+  - Extracts last N transactions
+  - Preserves chronological order
+
+**Impact:**  
+Transaction summaries now behave correctly.
+
+---
+
+## 7. Code Quality & Design Maturity
+
+### 7.1 Removal of Redundant Code Paths
+- V4 repeated logic with minor variations.
+- V5 consolidates logic via:
+  - Centralized `_record_transaction`
+  - Descriptor-driven balance enforcement
+
+**Impact:**  
+Less duplication, higher maintainability.
+
+---
+
+### 7.2 Explicit Design Assumptions
+- V4 had implicit assumptions.
+- V5 explicitly documents and codes against:
+  - No upper deposit limit
+  - Deposit operations never failing
+  - Transfer atomicity under current constraints
+
+**Impact:**  
+The system is internally consistent and defensible by design.
+
 
