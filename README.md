@@ -60,7 +60,7 @@ Unlike a standard project, this repository contains **6 distinct versions**. Eac
 ## 📝 Usage Example (V6 Logic)
 - Here is how you can use the system to manage accounts and perform secure transfers:
    ```bash
-    from banksystem_management import Bank, AccountType
+    from bank_account_management_system import Bank, AccountType
 
     # 1. Initialize the Bank
     mybank = Bank()
